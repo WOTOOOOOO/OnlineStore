@@ -1,0 +1,35 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using someOnlineStore.Data.Static
+@model IEnumerable<User>;
+@inject UserManager<User> UserManager;
+
+<div>
+    @foreach (var user  in Model)
+    {
+    <div class="col-md-8 offset-2 mb-2">
+        <div class="card">
+            <div class="row m-4">
+                <div class="col-md-2">
+                    <label>@user.UserName</label>
+                </div>
+                <div class="col-md-4 m-1">
+                    <label>@user.Email</label>
+                </div>
+                <div class="col-md-auto ms-1">
+                    <a class="btn btn-danger" asp-controller="Admin" asp-action="Details" asp-route-id="@user.Id">User Details</a>
+                </div>
+                <div class="col-md-auto ms-1">
+                @if (!await UserManager.IsInRoleAsync(user, UserRoles.Admin))
+                {
+                    <a class="btn btn-danger" asp-controller="Admin" asp-action="MakeAdmin" asp-route-id="@user.Id">Make Admin</a>
+                } else
+                {
+                    <a class="btn btn-primary" asp-controller="Admin" asp-action="DeleteAdmin" asp-route-id="@user.Id">Remove Admin</a>
+                }
+                </div>
+
+            </div>
+        </div>
+    </div>
+    }
+</div>

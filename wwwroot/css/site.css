@@ -1,0 +1,91 @@
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+}
+
+.border-round {
+    border-radius: 5px;
+}
+
+/*Toggles*/
+.dislpay-none {
+    display: none;
+}
+
+.show {
+    display: block;
+}
+
+/*Home related*/
+#filter {
+    border: solid blue;
+    border-width: 2px;
+    max-height: 0px;
+    opacity: 0;
+    transition: max-height 1s, opacity 2s;
+    overflow: hidden;
+}
+
+.editProductImage {
+    height : 300px;
+}
+
+/*Profile related*/
+#profileGeneralEdit {
+    z-index: 0;
+    height: 300px;
+}
+
+#profileSecuritylEdit {
+    z-index: 0;
+    display: none;
+    height: 300px;
+}
+
+#overlay {
+    display: flex;
+    z-index: 1;
+    top: 0px;
+    left: 0px;
+    position: absolute;
+    background-color: #BFBFBF;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 1s;
+    height: 100%;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+#passwordCheck {
+    border: solid grey;
+    border-width: 2px;
+    border-radius: 5px;
+    width: 300px;
+    height: 200px;
+}
+
+    #passwordCheck > form {
+        margin: 5%;
+    }
+
+
+/*Orders related*/
+.cartItem {
+    height: 100px;
+}

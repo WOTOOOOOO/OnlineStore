@@ -1,0 +1,55 @@
+﻿@model IEnumerable<Products>
+
+    @if (TempData["Error"] != null)
+{
+    <div class="col-md-12 alert alert-danger">
+        <span><b>Sorry!</b> - @TempData["Error"] </span>
+    </div>
+}
+@foreach (var item in Model)
+{
+    <div class="col-md-6 col-sm-6 mb-3">
+        <div class="card overflow-hidden">
+            <div class="row" style="height : auto">
+                <div class="bg-info text-white col-md-12 border border-2 border-secondary">
+                    <div class="m-2">
+                        <div class="d-inline-flex col-md-auto">
+                            <h4 class="text-black">@item.ProductName</h4>
+                        </div>
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                        {
+                            <div class="d-inline-flex col-md-auto float-end row">
+                                <div class="col-md-auto">
+                                    <a class="btn btn-secondary" asp-action="Edit" asp-route-id="@item.Id">Edit <i class="bi bi-pencil-square"></i></a>
+                                </div>
+                                <div class="col-md-auto">
+                                    <button class="btn btn-danger" onclick="deleteProduct(@item.Id);;disableButton(@($"del{item.Id}"));" id=@($"del{item.Id}")>Delete</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="col-md-12" style="width : 100%; height : 300px">
+                    <a asp-action="Details" asp-controller="Home" asp-route-Id=@item.Id style="width : 100%; height : 100%">
+                        <img src=@item.image style="width : 100%; height : 100%" />
+                    </a>
+                </div>
+                <div class="col-md-12 border border-2 border-secondary">
+                    <div class="m-2">
+                        <div class="d-inline-flex col-md-auto px-1">
+                            <p>@($"Price - {item.price}")</p>
+                        </div>
+                        <div class="d-inline-flex col-md-auto float-end row">
+                            <div class="col-md-auto">
+                                <a class="btn btn-primary" asp-action="Details" asp-route-id=@item.Id>Details</a>
+                            </div>
+                            <div class="col-md-auto">
+                               <button class="btn btn-success" onclick="addProduct(@item.Id);disableButton(@($"add{item.Id}"));" id=@($"add{item.Id}")>Add</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

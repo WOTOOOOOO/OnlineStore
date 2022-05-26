@@ -1,0 +1,32 @@
+﻿@using someOnlineStore.Data.ViewModels;
+@model CartVM
+
+@{
+    ViewData["Title"] = "Shopping cart";
+}
+
+
+<div class="col-md-8 offset-2">
+    <div class="card">
+        <div class="m-2">
+            <ul class="list-unstyled py-1">
+                @await Component.InvokeAsync("CartItemList")
+            </ul>
+            <hr />
+            @if (Model.shoppingCart.CartItems.Count == 0)
+            {
+                <p class="text-center">The cart is empty</p>
+
+            }
+            else
+            {
+                <div class="d-inline-flex">
+                    <p>@Model.Total</p>
+                </div>
+                <div class="d-inline-flex float-end">
+                    <a class="btn btn-success" asp-action="OrderCart">Order</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

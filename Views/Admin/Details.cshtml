@@ -1,0 +1,52 @@
+﻿@using someOnlineStore.Data.ViewModels
+@model UserVM
+
+<div class="row col-md-10 offset-1">
+    <div class="mb-lg-5">
+        <div class="card col-md-6 offset-3">
+            <div class="form-group col-md-6 offset-3">
+                <label asp-for="Username" class="form-label"></label>
+                <input asp-for="Username" class="form-control" readonly/>
+            </div>
+            <div class="form-group col-md-6 offset-3 mb-lg-4">
+                <label asp-for="Adress" class="form-label"></label>
+                <input asp-for="Adress" class="form-control" readonly/>
+             </div>
+             <div class="form-group col-md-6 offset-3 mb-lg-4">
+                 <label asp-for="PhoneNumber" class="form-label"></label>
+                 <input asp-for="PhoneNumber" class="form-control" readonly/>
+             </div>
+             <div class="form-group col-md-6 offset-3 mb-lg-4">
+                 <label asp-for="Email" class="form-label"></label>
+                 <input asp-for="Email" class="form-control" readonly/>
+             </div>
+             <div class="form-group col-md-auto offset-9 mb-1">
+                 <input type="submit" value="Update" class="btn btn-success btn-outline-succes"/>
+             </div>
+        </div>
+    </div>
+
+    <div class="col-md-10 offset-1">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody class="overflow-scroll">
+                @for (var i = 0; i < Model.orders.Count; i++)
+                {
+                <tr>
+                    <th scope="row">@i</th>
+                    <td>some date</td>
+                    <td>@Model.orders[i].Total</td>
+                    <td>Delivered</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

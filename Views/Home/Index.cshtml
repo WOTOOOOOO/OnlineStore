@@ -1,0 +1,40 @@
+﻿@using someOnlineStore.Data.Static
+@using Microsoft.AspNetCore.Http.Features
+@using someOnlineStore.Data.ViewModels
+@model HomeVM
+@{
+    ViewData["Title"] = "Products";
+}
+
+<div class="col-md-10 offset-1 row">
+    <div class="col-md-12 mb-lg-2 row border-round" id="filter">
+        @foreach (var category in SupportedCategories.Categories)
+        {
+            <div class="col-md-auto d-inline-flex mb-1">
+                <input class="form-check-input" type="checkbox" onclick="updateCategory()" value=@((int)category)>
+                <label class="form-check-label" for="formRadioDefault">@category</label>
+            </div>
+            <div class="d-inline-flex col-md-1 mb-1"></div>
+        }
+    </div>
+    <div class="col-md-auto mb-lg-2">
+        <div class="form-group visually-hidden">
+            <input asp-for="categories" class="form-control" id="category" />
+        </div>
+        <div class="input-group">
+            <input asp-for="searchString" class="form-control" placeholder="Search" id="searchString">
+            <button type="button" class="btn btn-primary" onclick="filterPopup()"><i class="bi bi-filter"></i></button>
+        </div>
+    </div>
+    <div class="row">
+        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+        {
+            <div col="col-md-12">
+                <a class="btn btn-primary mb-lg-2" asp-action="Create">Create</a>
+            </div>
+        }
+        <div class="col-md-12 row" id="items">
+            @await Component.InvokeAsync("ItemList")
+        </div>
+    </div>
+</div>

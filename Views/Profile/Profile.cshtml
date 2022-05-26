@@ -1,0 +1,92 @@
+﻿@using someOnlineStore.Data.ViewModels
+@model UserVM
+
+<div id="overlay" Style="@(TempData["Error"] != null ? "visibility: visible !important; opacity: 1 !important;" : "")">
+    <div id="passwordCheck">
+        <form asp-action="checkPassword" method="get">
+            <input class="form-control visually-hidden" id="profileEditTrigger" name="trigger"
+                   value="@(TempData["Trigger"] != null ? TempData["Trigger"] : 0)" />
+            <div class="form-group">
+                <label class="form-label">Confirm your current password</label>
+                <input type="password" class="form-control" name="password" />
+                @if (TempData["Error"] != null)
+                {
+                    <span class="text-danger">@TempData["Error"]</span>
+                }
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Continue" class="btn btn-outline-success form-control" />
+                <button type="button" class="btn btn-primary form-control" onclick="passwordCheckPopup(0)">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row col-md-10 offset-1">
+    <div class="mb-lg-5">
+        <div class="btn-group offset-3">
+            <button type="button" class="btn btn-outline-secondary" onclick="profileGeneral()">General</button>
+            <button type="button" class="btn btn-outline-secondary" onclick="profileSecurity()">Security</button>
+        </div>
+        <div class="card col-md-6 offset-3" id="profileGeneralEdit">
+            <form asp-action="Edit">
+                <div class="form-group col-md-6 offset-3">
+                    <label asp-for="Username" class="form-label"></label>
+                    <input asp-for="Username" class="form-control" readonly />
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 offset-3 mb-lg-4">
+                    <label asp-for="Adress" class="form-label"></label>
+                    <input asp-for="Adress" class="form-control" />
+                    <span asp-validation-for="Adress" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 offset-3 mb-lg-4">
+                    <label asp-for="PhoneNumber" class="form-label"></label>
+                    <input asp-for="PhoneNumber" class="form-control" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-auto offset-9">
+                    <input type="submit" value="Update" class="btn btn-success btn-outline-succes" />
+                </div>
+            </form>
+        </div>
+        <div class="card col-md-6 offset-3" id="profileSecuritylEdit">
+            <div class="form-group col-md-6 offset-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" readonly />
+                <button class="btn btn-danger" onclick="passwordCheckPopup(1)">Change Email</button>
+            </div>
+            <div class="col-md-6 offset-3 ">
+                <button class="btn btn-danger" onclick="passwordCheckPopup(2)">Change passwords</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-10 offset-1">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody class="overflow-scroll">
+                @for (var i = 0; i < Model.orders.Count; i++)
+                {
+
+                    <tr>
+                        <th scope="row">
+                            <a asp-action="Details" asp-controller="Order" asp-route-Id=@Model.orders[i].Id>@i</a>
+                        </th>
+                        <td>some date</td>
+                        <td>@Model.orders[i].Total</td>
+                        <td>@Model.orders[i].orderStatus</td>
+                    </tr>
+
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

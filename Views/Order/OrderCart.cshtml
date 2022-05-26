@@ -1,0 +1,44 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using someOnlineStore.Data.ViewModels
+@inject UserManager<User> UserManager
+@model OrderVM;
+
+
+<div class="col-md-8 offset-2">
+    <div class="card">
+        <div class="card-title mt-2">
+            <h4 class="text-center">Confirm Order</h4>
+        </div>
+        <div>
+            <div class="m-2">
+                <form asp-action="OrderCart" id="orderForm" method="post">
+                    <div class="form-group">
+                        <label asp-for="firstName" class="form-label"></label>
+                        <input asp-for="firstName" class="form-control" />
+                        <span asp-validation-for="firstName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="lastName" class="form-label"></label>
+                        <input asp-for="lastName" class="form-control" />
+                        <span asp-validation-for="lastName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="adress" class="form-label"></label>
+                        <input asp-for="adress" class="form-control" />
+                        <span asp-validation-for="adress" class="text-danger"></span>
+                    </div>
+                </form>
+                <div class="col-md-12">
+                    <button type="button" class="btn col-md-12 border-bottom" onclick="toggleOrderDropDown()">Order items</button>
+                    <ul id="orderDropDownCont" class="col-md-12 list-unstyled dislpay-none py-1">
+                        @await Component.InvokeAsync("CartItemList")
+                    </ul>
+                </div>
+                <div class="form-group float-end">
+                    <input type="submit" form="orderForm" value="Order" class="btn btn-outline-success float-right" />
+                    <a class="btn btn-outline-secondary" asp-action="ShoppingCart">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
