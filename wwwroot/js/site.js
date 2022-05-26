@@ -1,14 +1,14 @@
-﻿// col Utils
+﻿// - collection Utils
 function disableButton(id) {
     document.getElementById(id).disableButton;
 }
 
-// use (Order : OrderCart)
+// use : (Order : OrderCart)
 function toggleOrderDropDown() {
     document.getElementById("orderDropDownCont").classList.toggle("show");
 }
 
-// use (Home : Create, Edit, Index)
+// use : (Home : Create, Edit, Index)
 function updateCategory() {
     var categories = document.getElementsByClassName("form-check-input");
     var categoryInput = document.getElementById("category");
@@ -21,7 +21,7 @@ function updateCategory() {
     categoryInput.value = finalCategory;
     categoryInput.dispatchEvent(new Event('change'));
 }
-// col (Home : Index)
+// - collection Home
 function filterPopup() {
     var filterCard = document.getElementById("filter");
     if (filterCard.style.maxHeight == "0px") {
@@ -51,6 +51,18 @@ $("#searchString").keyup(function () {
     });
 });
 
+// desc : file uploads | use : Create, Edit
+$("#customFile").on("change", function () {
+    var fileName = $(this).val().split("\\").pop();
+    $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+    const fileReader = new FileReader();
+    fileReader.readAsDataURL($(this).prop('files')[0]);
+    fileReader.addEventListener("load", function () {
+        $("#preview").css({ "display": "block" });
+        $("#preview").html('<img style="height : 100%; width : 100%;" src="' + this.result + '" />');
+    });
+});
+
 // desc : delete product
 function deleteProduct(Id) {
     let cat = $("#category").val();
@@ -69,7 +81,7 @@ function addProduct(Id) {
     });
 }
 
-// col (Profile : Profile)
+// - collection Profile
 function profileGeneral() {
     var generalCard = document.getElementById("profileGeneralEdit");
     var securityCard = document.getElementById("profileSecuritylEdit");
@@ -108,15 +120,10 @@ function passwordCheckPopup(trigger) {
     }
 }
 
-// file uploads (Home : Create, Edit)
-$("#customFile").on("change", function () {
-    var fileName = $(this).val().split("\\").pop();
-    $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
-    const fileReader = new FileReader();
-    fileReader.readAsDataURL($(this).prop('files')[0]);
-    fileReader.addEventListener("load", function () {
-        $("#preview").css({ "display": "block" });
-        $("#preview").html('<img style="height : 100%; width : 100%;" src="' + this.result + '" />');
+// - collection Order
+function removeCartItem(Id) {
+    $.post("RemoveFromCart?Id=" + Id, function (r) {
+        $("#cartItemList").html(r);
     });
-});
+}
 
