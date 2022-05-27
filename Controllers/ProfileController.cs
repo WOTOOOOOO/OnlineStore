@@ -5,16 +5,17 @@ using someOnlineStore.Data.Services.ServiceInterfaces;
 using someOnlineStore.Data.Static;
 using someOnlineStore.Data.ViewModels;
 using someOnlineStore.Models;
+using System.Web;
 
 namespace someOnlineStore.Controllers
 {
     public class ProfileController : Controller
-    { 
+    {
         private readonly IOrderService _orderService;
         private readonly UserManager<User> _userManager;
         private readonly IMailService _mailService;
 
-        public ProfileController(IOrderService orderService, UserManager<User> userManager, 
+        public ProfileController(IOrderService orderService, UserManager<User> userManager,
             IMailService mailService)
         {
             _orderService = orderService;
@@ -74,30 +75,30 @@ namespace someOnlineStore.Controllers
             }
             if (trigger == 1)
             {
-                return Redirect($"changeEmail/{user.Id}");
+                return RedirectToAction("ChangeEmail", new { Id = user.Id });
             }
             else if (trigger == 2)
             {
 
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-                var confirmationLink = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}/Profile/changePassword/{user.Id}/{token}";
+                var confirmationLink = Url.Action("ChangePassword", "Profile", new { Id = user.Id, token = token }, Request.Scheme);
 
                 var message = new Message(new List<string>() { user.Email }, "Password reset confirmation",
                     Constants.generatePasswordResetMail(confirmationLink), null);
 
                 await _mailService.sendEmail(message);
 
-                return RedirectToAction("Index","Home");
+                return RedirectToAction("Index", "Home");
             }
 
             TempData["Error"] = "Unable to change password";
-            return RedirectToAction("Profile"); 
+            return RedirectToAction("Profile");
         }
 
         public IActionResult changeEmail(string Id)
         {
-            if(Id == null)
+            if (Id == null)
             {
                 return View("NotFound");
             }
@@ -106,7 +107,7 @@ namespace someOnlineStore.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> changeEmail(string Id,string newEmail)
+        public async Task<IActionResult> ChangeEmail(string Id, string newEmail)
         {
             if (newEmail == null)
             {
@@ -126,8 +127,7 @@ namespace someOnlineStore.Controllers
 
             var token = await _userManager.GenerateChangeEmailTokenAsync(user, newEmail);
 
-            var confirmationLink = Url.Action("ConfirmEmailChange", "Profile",
-                    new { Id = user.Id, token = token, email = newEmail }, Request.Scheme);
+            var confirmationLink = Url.Action("ConfirmEmailChange", "Profile", new { Id = user.Id, token = token, email = newEmail }, Request.Scheme);
 
             var message = new Message(new List<string>() { newEmail }, "Email change confirmation",
                 Constants.generateEmailChangeConfirmationMail(confirmationLink), null);
@@ -137,9 +137,9 @@ namespace someOnlineStore.Controllers
             return RedirectToAction("Profile");
         }
 
-
-        public async Task<IActionResult> changePassword(string Id, string token) 
+        public async Task<IActionResult> ChangePassword(string Id, string token)
         {
+
             if (Id == null || token == null)
             {
                 return RedirectToAction("Index", "Home");
@@ -149,19 +149,19 @@ namespace someOnlineStore.Controllers
 
             if (user == null)
             {
-                TempData["ErrorMessage"] = $"The User ID {Id} is invalid";
+                TempData["Error"] = $"The User ID {Id} is invalid";
                 return View("NotFound");
             }
 
             return View();
         }
 
-        [Route("changePassword/{Id}/{token}")]
         [HttpPost]
-        public async Task<IActionResult> changePassword(string Id, string token,
+        [Route("Profile/ChangePassword/{Id}/{token}")]
+        public async Task<IActionResult> ChangePassword(string Id, string token,
             [Bind("newPassword,confirmPassword")] PasswordVM newPasswordVM)
         {
-            
+            token = HttpUtility.UrlDecode(token).Replace(' ', '+');
 
             if (!ModelState.IsValid)
             {
@@ -169,7 +169,6 @@ namespace someOnlineStore.Controllers
             }
 
             var user = await _userManager.FindByIdAsync(Id);
-
             var result = await _userManager.ResetPasswordAsync(user, token, newPasswordVM.newPassword);
 
             if (result.Succeeded)
