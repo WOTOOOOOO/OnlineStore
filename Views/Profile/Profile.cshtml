@@ -1,25 +1,8 @@
 ﻿@using someOnlineStore.Data.ViewModels
 @model UserVM
 
-<div id="overlay" Style="@(TempData["Error"] != null ? "visibility: visible !important; opacity: 1 !important;" : "")">
-    <div id="passwordCheck">
-        <form asp-action="checkPassword" method="get">
-            <input class="form-control visually-hidden" id="profileEditTrigger" name="trigger"
-                   value="@(TempData["Trigger"] != null ? TempData["Trigger"] : 0)" />
-            <div class="form-group">
-                <label class="form-label">Confirm your current password</label>
-                <input type="password" class="form-control" name="password" />
-                @if (TempData["Error"] != null)
-                {
-                    <span class="text-danger">@TempData["Error"]</span>
-                }
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Continue" class="btn btn-outline-success form-control" />
-                <button type="button" class="btn btn-primary form-control" onclick="passwordCheckPopup(0)">Cancel</button>
-            </div>
-        </form>
-    </div>
+<div id="passwordCheckOverlay" class="coverScreen display-none align-items-center justify-content-center">
+    @await Component.InvokeAsync("PasswordCheck")
 </div>
 
 <div class="row col-md-10 offset-1">

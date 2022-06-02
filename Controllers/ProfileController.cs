@@ -58,24 +58,36 @@ namespace someOnlineStore.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> checkPassword(int trigger, string password)
+        public IActionResult CheckPasswordPopup(int trigger)
+        {
+            return ViewComponent("PasswordCheck", new { trigger = trigger });
+        }
+
+        public async Task<bool> CheckPassword(string password)
         {
             var user = await _userManager.GetUserAsync(User);
             if (password == null)
             {
-                TempData["Error"] = "Password can't be empty";
-                TempData["Trigger"] = trigger;
-                return RedirectToAction("Profile");
+                return false;
             }
-            if (!await _userManager.CheckPasswordAsync(user, password))
-            {
-                TempData["Error"] = "Incorrect password";
-                TempData["Trigger"] = trigger;
-                return RedirectToAction("Profile");
-            }
+
+            return await _userManager.CheckPasswordAsync(user, password);
+        }
+
+        public IActionResult PasswordIncorrect(int trigger)
+        {
+            TempData["Error"] = "Incorrect password";
+            return ViewComponent("PasswordCheck", new { trigger = trigger });
+        }
+
+        [HttpGet]
+        public async Task<string> PasswordCorrect(int trigger)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
             if (trigger == 1)
             {
-                return RedirectToAction("ChangeEmail", new { Id = user.Id });
+                return $"/Profile/ChangeEmail/{user.Id}";
             }
             else if (trigger == 2)
             {
@@ -89,14 +101,14 @@ namespace someOnlineStore.Controllers
 
                 await _mailService.sendEmail(message);
 
-                return RedirectToAction("Index", "Home");
+                return "/Home/Index";
             }
 
             TempData["Error"] = "Unable to change password";
-            return RedirectToAction("Profile");
+            return "/Profile/Profile";
         }
 
-        public IActionResult changeEmail(string Id)
+        public IActionResult ChangeEmail(string Id)
         {
             if (Id == null)
             {
@@ -169,6 +181,17 @@ namespace someOnlineStore.Controllers
             }
 
             var user = await _userManager.FindByIdAsync(Id);
+
+            foreach (IPasswordValidator<User> validator in _userManager.PasswordValidators)
+            {
+                var validationResult = await validator.ValidateAsync(_userManager, user, newPasswordVM.newPassword);
+                if (!validationResult.Succeeded)
+                {
+                    TempData["Error"] = validationResult.Errors.First().Description;
+                    return View(newPasswordVM);
+                }
+            }
+
             var result = await _userManager.ResetPasswordAsync(user, token, newPasswordVM.newPassword);
 
             if (result.Succeeded)

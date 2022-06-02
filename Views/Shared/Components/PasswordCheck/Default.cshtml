@@ -1,0 +1,19 @@
+﻿@model int
+
+<div id="passwordCheck" class="bg-white">
+        <form asp-action="checkPassword" method="get" id="adada">
+            <input class="form-control visually-hidden" name="trigger" value=@Model id="profileEditTrigger"/>
+            <div class="form-group">
+                <label class="form-label">Confirm your current password</label>
+                <input type="password" class="form-control" name="password" id="profileEditPassword"/>
+                @if (TempData["Error"] != null)
+                {
+                    <span class="text-danger">@TempData["Error"]</span>
+                }
+            </div>
+            <div class="form-group">
+                <button type="button" class="btn btn-outline-success form-control" onclick="passwordCheckSubmit()">Continue</button>
+                <button type="button" class="btn btn-primary form-control" onclick="passwordCheckPopup(0)">Cancel</button>
+            </div>
+        </form>
+    </div>
