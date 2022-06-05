@@ -7,6 +7,7 @@ using someOnlineStore.Data.ViewModels;
 using someOnlineStore.Models;
 using System.Web;
 
+
 namespace someOnlineStore.Controllers
 {
     public class ProfileController : Controller
@@ -41,15 +42,14 @@ namespace someOnlineStore.Controllers
             return View(userVM);
         }
 
+
+        //General edits rrelated
         [HttpPost]
         public async Task<IActionResult> Edit(string Username, string Adress, string PhoneNumber)
         {
             var user = await _userManager.GetUserAsync(User);
 
-            if (user == null)
-            {
-                return RedirectToAction("Index", "Home");
-            }
+            if (user == null) return RedirectToAction("Index", "Home");
             user.UserName = Username;
             user.Adress = Adress;
             user.PhoneNumber = PhoneNumber;
@@ -57,7 +57,8 @@ namespace someOnlineStore.Controllers
             return RedirectToAction("Profile");
         }
 
-        [HttpGet]
+
+        //Passwordpopup related
         public IActionResult CheckPasswordPopup(int trigger)
         {
             return ViewComponent("PasswordCheck", new { trigger = trigger });
@@ -66,10 +67,7 @@ namespace someOnlineStore.Controllers
         public async Task<bool> CheckPassword(string password)
         {
             var user = await _userManager.GetUserAsync(User);
-            if (password == null)
-            {
-                return false;
-            }
+            if (password == null) return false;
 
             return await _userManager.CheckPasswordAsync(user, password);
         }
@@ -85,10 +83,7 @@ namespace someOnlineStore.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
 
-            if (trigger == 1)
-            {
-                return $"/Profile/ChangeEmail/{user.Id}";
-            }
+            if (trigger == 1) return $"/Profile/ChangeEmail/{user.Id}";
             else if (trigger == 2)
             {
 
@@ -96,24 +91,53 @@ namespace someOnlineStore.Controllers
 
                 var confirmationLink = Url.Action("ChangePassword", "Profile", new { Id = user.Id, token = token }, Request.Scheme);
 
-                var message = new Message(new List<string>() { user.Email }, "Password reset confirmation",
-                    Constants.generatePasswordResetMail(confirmationLink), null);
+                HttpContext.Session.SetString("PCLink", confirmationLink);
 
-                await _mailService.sendEmail(message);
+                await _mailService.SendEmailAsync(new Message(new List<string>() { user.Email },
+                    "Password reset confirmation", Constants.generatePasswordResetMail(confirmationLink), null));
 
-                return "/Home/Index";
+                return "/Profile/VerificationEmailSent";
             }
 
             TempData["Error"] = "Unable to change password";
             return "/Profile/Profile";
         }
 
+
+        //Verification email handling
+        public IActionResult VerificationEmailSent()
+        {
+            var ECLink = HttpContext.Session.GetString("ECLink");
+            var PCLink = HttpContext.Session.GetString("PCLink");
+
+            if (ECLink != null) TempData["ECResend"] = true;
+            if (PCLink != null) TempData["PCResend"] = true;
+
+            return View();
+        }
+
+        public async Task ResendMessage(int trigger)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (trigger == 1)
+            {
+                var ECLink = HttpContext.Session.GetString("ECLink");
+                await _mailService.SendEmailAsync(new Message(new List<string>() { user.Email }, 
+                    "Password reset confirmation", Constants.generatePasswordResetMail(ECLink), null));
+            }
+            else if (trigger == 2)
+            {
+                var PCLink = HttpContext.Session.GetString("PCLink");
+                await _mailService.SendEmailAsync(new Message(new List<string>() { user.Email }, "Password reset confirmation",
+                        Constants.generatePasswordResetMail(PCLink), null));
+            }
+        }
+
+
+        // Email change related
         public IActionResult ChangeEmail(string Id)
         {
-            if (Id == null)
-            {
-                return View("NotFound");
-            }
+            if (Id == null) return View("NotFound");
 
             return View();
         }
@@ -141,21 +165,41 @@ namespace someOnlineStore.Controllers
 
             var confirmationLink = Url.Action("ConfirmEmailChange", "Profile", new { Id = user.Id, token = token, email = newEmail }, Request.Scheme);
 
+            HttpContext.Session.SetString("ECLink", confirmationLink);
+
             var message = new Message(new List<string>() { newEmail }, "Email change confirmation",
                 Constants.generateEmailChangeConfirmationMail(confirmationLink), null);
 
-            await _mailService.sendEmail(message);
+            await _mailService.SendEmailAsync(message);
+
+            return RedirectToAction("VerificationEmailSent");
+        }
+
+        public async Task<IActionResult> ConfirmEmailChange(string Id, string token, string email)
+        {
+            if (Id == null || token == null) return RedirectToAction("Index", "home");
+
+
+            var user = await _userManager.FindByIdAsync(Id);
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = $"The User ID {Id} is invalid";
+                return View("NotFound");
+            }
+
+            user.Email = email;
+            user.NormalizedEmail = email.ToUpper();
+            await _userManager.UpdateAsync(user);
 
             return RedirectToAction("Profile");
         }
 
+
+        // Password change related
         public async Task<IActionResult> ChangePassword(string Id, string token)
         {
 
-            if (Id == null || token == null)
-            {
-                return RedirectToAction("Index", "Home");
-            }
+            if (Id == null || token == null) return RedirectToAction("Index", "Home");
 
             var user = await _userManager.FindByIdAsync(Id);
 
@@ -175,10 +219,7 @@ namespace someOnlineStore.Controllers
         {
             token = HttpUtility.UrlDecode(token).Replace(' ', '+');
 
-            if (!ModelState.IsValid)
-            {
-                return View(newPasswordVM);
-            }
+            if (!ModelState.IsValid) return View(newPasswordVM);
 
             var user = await _userManager.FindByIdAsync(Id);
 
@@ -194,37 +235,13 @@ namespace someOnlineStore.Controllers
 
             var result = await _userManager.ResetPasswordAsync(user, token, newPasswordVM.newPassword);
 
-            if (result.Succeeded)
-            {
-                return RedirectToAction("PasswordChanged");
-            }
+            if (result.Succeeded) return RedirectToAction("PasswordChanged");
 
             TempData["Error"] = "Password reset was unsuccesful";
             return View("Error");
         }
 
         public IActionResult PasswordChanged() => View();
-
-        public async Task<IActionResult> ConfirmEmailChange(string Id, string token, string email)
-        {
-            if (Id == null || token == null)
-            {
-                return RedirectToAction("Index", "home");
-            }
-
-            var user = await _userManager.FindByIdAsync(Id);
-            if (user == null)
-            {
-                TempData["ErrorMessage"] = $"The User ID {Id} is invalid";
-                return View("NotFound");
-            }
-
-            user.Email = email;
-            user.NormalizedEmail = email.ToUpper();
-            await _userManager.UpdateAsync(user);
-
-            return RedirectToAction("Profile");
-        }
 
     }
 }
