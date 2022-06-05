@@ -1,11 +1,13 @@
-﻿// - collection Utils
+﻿const { func } = require("prop-types");
+
+// - collection Utils
 function disableButton(id) {
     document.getElementById(id).disableButton;
 }
 
 // use : (Order : OrderCart)
-function toggleOrderDropDown() {
-    document.getElementById("orderDropDownCont").classList.toggle("show");
+function toggleShow(Id) {
+    document.getElementById(Id).classList.toggle("show");
 }
 
 // use : (Home : Create, Edit, Index)
@@ -99,25 +101,29 @@ function profileSecurity() {
 }
 
 function passwordCheckPopup(trigger) {
-    var overlay = document.getElementById("overlay");
-    var nextWindow = document.getElementById("profileEditTrigger");
-    if (trigger == 1) {
-        nextWindow.value = 1;
-    }
-    else if (trigger == 2) {
-        nextWindow.value = 2;
-    }
-    else {
-        nextWindow.value = 0;
-    }
-    if (overlay.style.visibility == "hidden") {
-        overlay.style.visibility = "visible";
-        overlay.style.opacity = "1";
-    }
-    else {
-        overlay.style.opacity = "0";
-        overlay.style.visibility = "hidden";
-    }
+    $.get("CheckPasswordPopup?trigger=" + trigger, function (r) {
+        $("#passwordCheckOverlay").html(r);
+    });
+    toggleShow("passwordCheckOverlay");
+}
+
+function passwordCheckSubmit(trigger) {
+    var password = $("#profileEditPassword").val();
+    $.get("CheckPassword?password=" + password, function (r) {
+        if (r == false) {
+            $.get("PasswordIncorrect?trigger=" + trigger, function (r1) {
+                $("#passwordCheckOverlay").html(r1);
+            });
+        } else {
+            $.get("PasswordCorrect?trigger=" + trigger, function (r) {
+                window.location.href = r;
+            });
+        }
+    });
+}
+
+function resendMessage(trigger) {
+    $.get(window.location.origin + "/Profile/ResendMessage?trigger=" + trigger, function (r) { });
 }
 
 // - collection Order
