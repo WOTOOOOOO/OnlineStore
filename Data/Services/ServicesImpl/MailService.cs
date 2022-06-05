@@ -22,7 +22,7 @@ namespace someOnlineStore.Data.Services.ServicesImpl
             Send(emailMessage);
         }
 
-        public async Task sendEmail(Message message)
+        public async Task SendEmailAsync(Message message)
         {
             var mailMessage = CreateEmailMessage(message);
 

@@ -4,6 +4,8 @@ namespace someOnlineStore.Data.Services.ServiceInterfaces
 {
     public interface IMailService
     {
-        public Task sendEmail(Message message);
+
+        public void SendEmail(Message message);
+        public Task SendEmailAsync(Message message);
     }
 }

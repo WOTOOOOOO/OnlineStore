@@ -29,8 +29,8 @@
                     </div>
                 </form>
                 <div class="col-md-12">
-                    <button type="button" class="btn col-md-12 border-bottom" onclick="toggleOrderDropDown()">Order items</button>
-                    <div id="orderDropDownCont" class="col-md-12 list-unstyled dislpay-none py-1">
+                    <button type="button" class="btn col-md-12 border-bottom" onclick="toggleShow(@("orderDropDownCont"))">Order items</button>
+                    <div class="col-md-12 list-unstyled display-none py-1" id="orderDropDownCont">
                         <div id="cartItemList">
                             @await Component.InvokeAsync("CartItemList")
                         </div>

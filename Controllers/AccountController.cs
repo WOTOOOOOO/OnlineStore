@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using someOnlineStore.Data.Cart;
 using someOnlineStore.Data.EmailData;
 using someOnlineStore.Data.Services.ServiceInterfaces;
 using someOnlineStore.Data.Static;
@@ -14,14 +15,16 @@ namespace someOnlineStore.Areas.Account.Controllers
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IMailService _mailService;
+        private readonly ShoppingCart _cart;
 
-        public AccountController(UserManager<User> userManager,
+        public AccountController(UserManager<User> userManager, ShoppingCart cart, 
             SignInManager<User> signInManager, IMailService mailService
             )
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _mailService = mailService;
+            _cart = cart;
         }
 
         public IActionResult Login()
@@ -43,7 +46,7 @@ namespace someOnlineStore.Areas.Account.Controllers
                 {
                     var result = await _signInManager.PasswordSignInAsync(user, loginVM.Password, true, false);
                     if (result.Succeeded)
-                    { 
+                    {
                         return RedirectToAction("Index", "Home");
                     }
                 }
@@ -83,19 +86,19 @@ namespace someOnlineStore.Areas.Account.Controllers
             }
 
             var newUser = new User()
-                {
-                    Email = registerVM.Email,
-                    PhoneNumber = registerVM.phoneNumber,
-                    UserName = registerVM.Username,
-                    Adress = registerVM.Adress
-                };
+            {
+                Email = registerVM.Email,
+                PhoneNumber = registerVM.phoneNumber,
+                UserName = registerVM.Username,
+                Adress = registerVM.Adress
+            };
 
             foreach (IPasswordValidator<User> validator in _userManager.PasswordValidators)
             {
-                var result = await validator.ValidateAsync(_userManager, newUser, registerVM.Password);
-                if (!result.Succeeded)
+                var validationResult = await validator.ValidateAsync(_userManager, newUser, registerVM.Password);
+                if (!validationResult.Succeeded)
                 {
-                    TempData["Error"] = result.Errors.First().Description;
+                    TempData["Error"] = validationResult.Errors.First().Description;
                     return View(registerVM);
                 }
             }
@@ -124,7 +127,7 @@ namespace someOnlineStore.Areas.Account.Controllers
                 var message = new Message(new List<string>() { newUser.Email }, "Email Confirmation",
                     Constants.generateConfirmationEmail(confirmationLink), null);
 
-                await _mailService.sendEmail(message);
+                await _mailService.SendEmailAsync(message);
 
                 return RedirectToAction("Login", "Account");
             }
@@ -160,6 +163,10 @@ namespace someOnlineStore.Areas.Account.Controllers
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
+            await _cart.ClearCart();
+            HttpContext.Session.Remove("PCLink");
+            HttpContext.Session.Remove("ECLink");
+            HttpContext.Session.Remove("CartId");
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
