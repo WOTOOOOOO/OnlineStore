@@ -5,6 +5,7 @@ using someOnlineStore.Data.Services.ServiceInterfaces;
 using someOnlineStore.Data.Static;
 using someOnlineStore.Data.ViewModels;
 using someOnlineStore.Models;
+using System.Net.Mail;
 using System.Web;
 
 
@@ -104,51 +105,30 @@ namespace someOnlineStore.Controllers
         }
 
 
-        //Verification email handling
-        public IActionResult VerificationEmailSent()
-        {
-            var ECLink = HttpContext.Session.GetString("ECLink");
-            var PCLink = HttpContext.Session.GetString("PCLink");
-
-            if (ECLink != null) TempData["ECResend"] = true;
-            if (PCLink != null) TempData["PCResend"] = true;
-
-            return View();
-        }
-
-        public async Task ResendMessage(int trigger)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (trigger == 1)
-            {
-                var ECLink = HttpContext.Session.GetString("ECLink");
-                await _mailService.SendEmailAsync(new Message(new List<string>() { user.Email }, 
-                    "Password reset confirmation", Constants.generatePasswordResetMail(ECLink), null));
-            }
-            else if (trigger == 2)
-            {
-                var PCLink = HttpContext.Session.GetString("PCLink");
-                await _mailService.SendEmailAsync(new Message(new List<string>() { user.Email }, "Password reset confirmation",
-                        Constants.generatePasswordResetMail(PCLink), null));
-            }
-        }
-
-
         // Email change related
         public IActionResult ChangeEmail(string Id)
         {
             if (Id == null) return View("NotFound");
 
-            return View();
+            return View(model: Id);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> ChangeEmail(string Id, string newEmail)
+        public async Task<bool> CheckEmailValidity(string newEmail)
         {
             if (newEmail == null)
             {
                 TempData["Error"] = "Email can't be empty";
-                return View();
+                return false;
+            }
+
+            try
+            {
+                MailAddress m = new MailAddress(newEmail);
+            }
+            catch (FormatException)
+            {
+                TempData["Error"] = "Invalid email adress";
+                return false;
             }
 
             var emailCheck = await _userManager.FindByEmailAsync(newEmail);
@@ -156,9 +136,19 @@ namespace someOnlineStore.Controllers
             if (emailCheck != null)
             {
                 TempData["Error"] = "This email is already in use";
-                return View();
+                return false;
             }
 
+            return true;
+        }
+
+        public IActionResult EmailInvalid(string Id)
+        {
+            return ViewComponent("EmailChangeForm", new { Id = Id });
+        }
+
+        public async Task<string> EmailValid(string Id, string newEmail)
+        {
             var user = await _userManager.FindByIdAsync(Id);
 
             var token = await _userManager.GenerateChangeEmailTokenAsync(user, newEmail);
@@ -167,12 +157,10 @@ namespace someOnlineStore.Controllers
 
             HttpContext.Session.SetString("ECLink", confirmationLink);
 
-            var message = new Message(new List<string>() { newEmail }, "Email change confirmation",
-                Constants.generateEmailChangeConfirmationMail(confirmationLink), null);
+            await _mailService.SendEmailAsync(new Message(new List<string>() { newEmail }, "Email change confirmation",
+                Constants.generateEmailChangeConfirmationMail(confirmationLink), null));
 
-            await _mailService.SendEmailAsync(message);
-
-            return RedirectToAction("VerificationEmailSent");
+            return "/Profile/VerificationEmailSent";
         }
 
         public async Task<IActionResult> ConfirmEmailChange(string Id, string token, string email)
@@ -192,6 +180,36 @@ namespace someOnlineStore.Controllers
             await _userManager.UpdateAsync(user);
 
             return RedirectToAction("Profile");
+        }
+
+
+        //Verification email handling
+        public IActionResult VerificationEmailSent()
+        {
+            var ECLink = HttpContext.Session.GetString("ECLink");
+            var PCLink = HttpContext.Session.GetString("PCLink");
+
+            if (ECLink != null) TempData["ECResend"] = true;
+            if (PCLink != null) TempData["PCResend"] = true;
+
+            return View();
+        }
+
+        public async Task ResendMessage(int trigger)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (trigger == 1)
+            {
+                var ECLink = HttpContext.Session.GetString("ECLink");
+                await _mailService.SendEmailAsync(new Message(new List<string>() { user.Email },
+                    "Password reset confirmation", Constants.generatePasswordResetMail(ECLink), null));
+            }
+            else if (trigger == 2)
+            {
+                var PCLink = HttpContext.Session.GetString("PCLink");
+                await _mailService.SendEmailAsync(new Message(new List<string>() { user.Email }, "Password reset confirmation",
+                        Constants.generatePasswordResetMail(PCLink), null));
+            }
         }
 
 

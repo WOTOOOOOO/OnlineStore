@@ -1,4 +1,4 @@
-﻿const { func } = require("prop-types");
+﻿const URLBase = window.location.origin;
 
 // - collection Utils
 function disableButton(id) {
@@ -111,8 +111,8 @@ function passwordCheckSubmit(trigger) {
     var password = $("#profileEditPassword").val();
     $.get("CheckPassword?password=" + password, function (r) {
         if (r == false) {
-            $.get("PasswordIncorrect?trigger=" + trigger, function (r1) {
-                $("#passwordCheckOverlay").html(r1);
+            $.get("PasswordIncorrect?trigger=" + trigger, function (r) {
+                $("#passwordCheckOverlay").html(r);
             });
         } else {
             $.get("PasswordCorrect?trigger=" + trigger, function (r) {
@@ -123,7 +123,22 @@ function passwordCheckSubmit(trigger) {
 }
 
 function resendMessage(trigger) {
-    $.get(window.location.origin + "/Profile/ResendMessage?trigger=" + trigger, function (r) { });
+    $.get(URLBase + "/Profile/ResendMessage?trigger=" + trigger, function (r) { });
+}
+
+function emailChangeSubmit(Id) {
+    var newEmail = $("#newEmail").val();
+    $.get(URLBase + "/Profile/CheckEmailValidity?newEmail=" + newEmail, function (r) {
+        if (r == false) {
+            $.get(URLBase + "/Profile/EmailInvalid?Id=" + Id, function (r) {
+                $("#emailChangeWrap").html(r);
+            });
+        } else {
+            $.get(URLBase + "/Profile/EmailValid?Id=" + Id + "&newEmail=" + newEmail, function (r) {
+                window.location.href = URLBase + r;
+            });
+        }
+    });
 }
 
 // - collection Order
