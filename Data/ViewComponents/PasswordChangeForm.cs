@@ -1,6 +1,6 @@
 ﻿namespace someOnlineStore.Data.ViewComponents
 {
-    public class PasswordChange
+    public class PasswordChangeForm
     {
     }
 }

@@ -19,10 +19,6 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
-    <Folder Include="Views\Shared\Components\EmailChange\" />
-    <Folder Include="Views\Shared\Components\UserOrderList\" />
-    <Folder Include="Views\Shared\Components\UserList\" />
-    <Folder Include="Views\Shared\Components\PasswordChange\" />
     <Folder Include="wwwroot\images\" />
   </ItemGroup>
 

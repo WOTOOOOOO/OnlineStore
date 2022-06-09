@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using someOnlineStore.Models;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace someOnlineStore.Data.ViewComponents
 {
