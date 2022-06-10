@@ -40,7 +40,7 @@ namespace someOnlineStore.Controllers
                 PhoneNumber = user.PhoneNumber,
                 orders = await _orderService.GetAllOrders(user.Id)
             };
-            return View(userVM);
+            return View("Error");
         }
 
 
@@ -226,18 +226,17 @@ namespace someOnlineStore.Controllers
                 TempData["Error"] = $"The User ID {Id} is invalid";
                 return View("NotFound");
             }
-
-            return View();
+            var data = new PasswordChangeVM { Id = Id, token = token };
+            return View(data);
         }
 
-        [HttpPost]
-        [Route("Profile/ChangePassword/{Id}/{token}")]
-        public async Task<IActionResult> ChangePassword(string Id, string token,
+        public async Task<bool> CheckPasswordValidity(string Id, string token,
             [Bind("newPassword,confirmPassword")] PasswordVM newPasswordVM)
         {
+
             token = HttpUtility.UrlDecode(token).Replace(' ', '+');
 
-            if (!ModelState.IsValid) return View(newPasswordVM);
+            if (!ModelState.IsValid) return false;
 
             var user = await _userManager.FindByIdAsync(Id);
 
@@ -247,17 +246,45 @@ namespace someOnlineStore.Controllers
                 if (!validationResult.Succeeded)
                 {
                     TempData["Error"] = validationResult.Errors.First().Description;
-                    return View(newPasswordVM);
+                    return false;
                 }
             }
 
+            return true;
+        }
+
+        public IActionResult PasswordInValid(string Id, string token,
+            [Bind("newPassword,confirmPassword")] PasswordVM newPasswordVM)
+        {
+            return ViewComponent("PasswordChangeForm", new PasswordChangeFormVM
+            {
+                Id = Id,
+                token = token,
+                newPassword = newPasswordVM.newPassword,
+                confirmPassword = newPasswordVM.confirmPassword
+            });
+        }
+
+        [HttpPost]
+        public async Task<bool> PasswordValid(string Id, string token,
+            [Bind("newPassword,confirmPassword")] PasswordVM newPasswordVM)
+        {
+            token = HttpUtility.UrlDecode(token).Replace(' ', '+');
+
+            var user = await _userManager.FindByIdAsync(Id);
+
             var result = await _userManager.ResetPasswordAsync(user, token, newPasswordVM.newPassword);
 
-            if (result.Succeeded) return RedirectToAction("PasswordChanged");
+            if (!result.Succeeded)
+                TempData["Error"] = "Password change was unsuccesful";
 
-            TempData["Error"] = "Password reset was unsuccesful";
-            return View("Error");
+            return result.Succeeded;
+
         }
+
+        public string PasswordChangeSuccessful() => "/Profile/PasswordChanged";
+
+        public IActionResult PasswordChangeUnsuccessful() => View("Error");
 
         public IActionResult PasswordChanged() => View();
 

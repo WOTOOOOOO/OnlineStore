@@ -124,6 +124,7 @@ function passwordCheckSubmit(trigger) {
 
 function resendMessage(trigger) {
     $.get(URLBase + "/Profile/ResendMessage?trigger=" + trigger, function (r) { });
+    var a = 1;
 }
 
 function emailChangeSubmit(Id) {
@@ -140,6 +141,34 @@ function emailChangeSubmit(Id) {
         }
     });
 }
+
+function passwordChangeSubmit(Id, token) {
+    var newPassword = $("#newPassword").val();
+    var confirmPassword = $("#confirmPassword").val();
+    $.get(URLBase + "/Profile/CheckPasswordValidity?Id=" + Id + "&token=" + token +
+        "&newPassword=" + newPassword + "&confirmPassword=" + confirmPassword, function (r) {
+            if (r == false) {
+                $.get(URLBase + "/Profile/PasswordInValid?Id=" + Id + "&token=" + token +
+                    "&newPassword=" + newPassword + "&confirmPassword=" + confirmPassword, function (r) {
+                        $("#passwordChangeWrap").html(r);
+                    });
+            } else {
+                $.post(URLBase + "/Profile/PasswordValid?Id=" + Id + "&token=" + token +
+                    "&newPassword=" + newPassword + "&confirmPassword=" + confirmPassword, function (r) {
+                        if (r == false) {
+                            $.get(URLBase + "/Profile/PasswordChangeUnsuccessful", function (r) {
+                                $("#passwordChangeWrap").html(r);
+                            });
+                        } else {
+                            $.get(URLBase + "/Profile/PasswordChangeSuccessful", function (r) {
+                                window.location.href = URLBase + r;
+                            });
+                        }
+                    });
+            }
+        });
+}
+
 
 // - collection Order
 function removeCartItem(Id) {
