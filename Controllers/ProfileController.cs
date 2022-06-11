@@ -40,7 +40,7 @@ namespace someOnlineStore.Controllers
                 PhoneNumber = user.PhoneNumber,
                 orders = await _orderService.GetAllOrders(user.Id)
             };
-            return View("Error");
+            return View(userVM);
         }
 
 
