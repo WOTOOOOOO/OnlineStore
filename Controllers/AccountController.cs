@@ -17,7 +17,7 @@ namespace someOnlineStore.Areas.Account.Controllers
         private readonly IMailService _mailService;
         private readonly ShoppingCart _cart;
 
-        public AccountController(UserManager<User> userManager, ShoppingCart cart, 
+        public AccountController(UserManager<User> userManager, ShoppingCart cart,
             SignInManager<User> signInManager, IMailService mailService
             )
         {
@@ -29,13 +29,13 @@ namespace someOnlineStore.Areas.Account.Controllers
 
         public IActionResult Login()
         {
-            return View(new LoginVM());
+            return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(LoginVM loginVM)
+        public async Task<bool> LoginResult([Bind("Email,Password")] LoginVM loginVM)
         {
-            if (!ModelState.IsValid) return View(loginVM);
+            if (!ModelState.IsValid) return false;
 
             var user = await _userManager.FindByEmailAsync(loginVM.Email);
             if (user != null)
@@ -47,34 +47,34 @@ namespace someOnlineStore.Areas.Account.Controllers
                     var result = await _signInManager.PasswordSignInAsync(user, loginVM.Password, true, false);
                     if (result.Succeeded)
                     {
-                        return RedirectToAction("Index", "Home");
+                        return true;
                     }
                 }
-
                 TempData["Error"] = "wrong credentials";
-                return View(loginVM);
+                return false;
             }
-
             TempData["Error"] = "wrong credentials";
-            return View(loginVM);
+            return false;
         }
 
+        public IActionResult LoginUnsuccessful([Bind("Email,Password")] LoginVM loginVM) => ViewComponent("LoginForm", loginVM);
+
+        public string LoginSuccessful() => "/Home/Index";
 
         public IActionResult Register()
         {
-            return View(new RegisterVM());
+            return View();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Register(RegisterVM registerVM)
+        public async Task<bool> RegisterResult(RegisterVM registerVM)
         {
-            if (!ModelState.IsValid) return View(registerVM);
+            if (!ModelState.IsValid) return false;
 
             var user = await _userManager.FindByEmailAsync(registerVM.Email);
             if (user != null)
             {
                 TempData["Error"] = "Email adress already in use.";
-                return View(registerVM);
+                return false;
             }
 
             user = await _userManager.FindByNameAsync(registerVM.Username);
@@ -82,7 +82,7 @@ namespace someOnlineStore.Areas.Account.Controllers
             if (user != null)
             {
                 TempData["Error"] = "Username already in use.";
-                return View(registerVM);
+                return false;
             }
 
             var newUser = new User()
@@ -93,16 +93,6 @@ namespace someOnlineStore.Areas.Account.Controllers
                 Adress = registerVM.Adress
             };
 
-            foreach (IPasswordValidator<User> validator in _userManager.PasswordValidators)
-            {
-                var validationResult = await validator.ValidateAsync(_userManager, newUser, registerVM.Password);
-                if (!validationResult.Succeeded)
-                {
-                    TempData["Error"] = validationResult.Errors.First().Description;
-                    return View(registerVM);
-                }
-            }
-
             try
             {
                 MailAddress m = new MailAddress(newUser.Email);
@@ -110,7 +100,17 @@ namespace someOnlineStore.Areas.Account.Controllers
             catch (FormatException)
             {
                 TempData["Error"] = "Invalid email adress";
-                return View(registerVM);
+                return false;
+            }
+
+            foreach (IPasswordValidator<User> validator in _userManager.PasswordValidators)
+            {
+                var validationResult = await validator.ValidateAsync(_userManager, newUser, registerVM.Password);
+                if (!validationResult.Succeeded)
+                {
+                    TempData["Error"] = validationResult.Errors.First().Description;
+                    return false;
+                }
             }
 
             var newUserResponse = await _userManager.CreateAsync(newUser, registerVM.Password);
@@ -124,16 +124,40 @@ namespace someOnlineStore.Areas.Account.Controllers
                 var confirmationLink = Url.Action("ConfirmEmail", "Account",
                     new { userId = newUser.Id, token = token }, Request.Scheme);
 
-                var message = new Message(new List<string>() { newUser.Email }, "Email Confirmation",
-                    Constants.generateConfirmationEmail(confirmationLink), null);
+                HttpContext.Session.SetString("ECLink", confirmationLink);
 
-                await _mailService.SendEmailAsync(message);
+                await _mailService.SendEmailAsync(new Message(new List<string>() { newUser.Email }, "Email Confirmation",
+                    Constants.generateConfirmationEmail(confirmationLink), null));
 
-                return RedirectToAction("Login", "Account");
+                return true;
             }
 
             TempData["Error"] = "Registration Unsuccessful";
-            return View(registerVM);
+            return false;
+        }
+
+        public IActionResult RegisterUnsuccessful(RegisterVM registerVM) =>
+            ViewComponent("RegistrationForm", registerVM);
+
+        public string RegisterSuccessful(string Email) => $"/Account/VerificationEmailSent/{Email}";
+
+
+        [Route("Account/VerificationEmailSent/{Email}")]
+        public IActionResult VerificationEmailSent(string Email)
+        {
+            var ECLink = HttpContext.Session.GetString("ECLink");
+
+            if (ECLink != null) TempData["ECResend"] = true;
+
+            return View(model: Email);
+        }
+
+        [Route("Account/ResendMessage/{Email}")]
+        public async Task ResendMessage(string Email)
+        {
+            var ECLink = HttpContext.Session.GetString("ECLink");
+            await _mailService.SendEmailAsync(new Message(new List<string>() { Email },
+                "Password reset confirmation", Constants.generatePasswordResetMail(ECLink), null));
         }
 
         public async Task<IActionResult> ConfirmEmail(string userId, string token)

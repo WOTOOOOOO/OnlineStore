@@ -1,0 +1,21 @@
+﻿@model string
+
+
+@if (TempData["ECresend"] == null)
+{
+    <div class="col-md-6 offset-3 row">
+        <h6>There are no email or password change requests pending.</h6>
+    </div>
+}
+else
+{
+    <div class="col-md-6 offset-3 row">
+        <div class="col-md-12">
+            <h4 class="textcenter">Verification email has been sent</h4>
+        </div>
+        <div class="col-md-6">
+            <h6 class="textcenter">Resend email verification mail</h6>
+            <button onclick="resendEmailVerification(@($"\"{Model}\""))">Resend</button>
+        </div>
+    </div>
+}
