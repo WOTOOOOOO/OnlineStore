@@ -28,7 +28,7 @@ namespace someOnlineStore.Data.ViewModels
         [Required(ErrorMessage = "Adress Required")]
         public string Adress { get; set; }
 
-        [Display(Name = "Phone Number")]
+        [Display(Name = "Phone number")]
         [Required(ErrorMessage = "Phone Number Reaquired")]
         [DataType(DataType.PhoneNumber)]
         [RegularExpression(@"^\(?([0-9]{3})\)?([0-9]{3})?([0-9]{3})$", ErrorMessage = "Not a valid phone number")]

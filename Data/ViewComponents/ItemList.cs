@@ -14,11 +14,11 @@ namespace someOnlineStore.Data.ViewComponents
             _productService = productsService;
         }
 
-        public IViewComponentResult Invoke(IEnumerable<Products> products , Category categories, String searchString)
+        public async Task<IViewComponentResult> InvokeAsync(IEnumerable<Products> products , Category categories, String searchString)
         {
             if (products == null && categories == Category.None && searchString == null)
             {
-                var productList = _productService.GetAllAsync().Result;
+                var productList =await _productService.GetAllAsync();
                 return View(productList);
             }
             return View(products);

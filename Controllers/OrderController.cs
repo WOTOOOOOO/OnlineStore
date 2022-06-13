@@ -24,15 +24,7 @@ namespace someOnlineStore.Controllers
 
         public IActionResult ShoppingCart()
         {
-            var items = _cart.GetCartItems();
-            _cart.CartItems = items;
-
-            var cartvm = new CartVM()
-            {
-                shoppingCart = _cart,
-                Total = _cart.GetCartTotal(),
-            };
-            return View(cartvm);
+            return View();
         }
 
 
@@ -42,13 +34,13 @@ namespace someOnlineStore.Controllers
             var product = await _productsService.GetByIdAsync(Id);
             if (product == null)
             {
-                TempData["Error"] = "Product not found";
-                return RedirectToAction("ShoppingCart");
+                TempData["Error"] = "Item not found";
+                return ViewComponent("CartItemList");
             }
             await _cart.RemoveItem(product);
-            
-            var url = Request.GetTypedHeaders().Referer.ToString();
-            return Redirect(url);
+
+            //var url = Request.GetTypedHeaders().Referer.ToString();
+            return ViewComponent("CartItemList");
         }
 
         public IActionResult OrderCart()
@@ -67,10 +59,11 @@ namespace someOnlineStore.Controllers
         public async Task<IActionResult> OrderCart([Bind("firstName,lastName,adress")] OrderVM orderData)
         {
             var userId = _userManager.GetUserId(User);
+            
 
             if (userId == null)
             {
-                TempData["ErrorMessage"] = "User not found";
+                TempData["Error"] = "User not found";
                 return View("NotFound");
             }
 
@@ -98,7 +91,7 @@ namespace someOnlineStore.Controllers
             };
             if (order == null)
             {
-                TempData["ErrorMessage"] = "Order was not found";
+                TempData["Error"] = "Order was not found";
                 return View("NotFound");
             }
 

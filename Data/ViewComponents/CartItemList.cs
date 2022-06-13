@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using someOnlineStore.Data.Cart;
+using someOnlineStore.Data.ViewModels;
 
 namespace someOnlineStore.Data.ViewComponents
 {
@@ -15,7 +16,13 @@ namespace someOnlineStore.Data.ViewComponents
         public IViewComponentResult Invoke()
         {
             var items = _cart.GetCartItems();
-            return View(items);
+
+            var cartvm = new CartVM()
+            {
+                Total = _cart.GetCartTotal(),
+                items = items
+            };
+            return View(cartvm);
         }
 
     }

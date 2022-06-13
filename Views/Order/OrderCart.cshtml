@@ -29,10 +29,12 @@
                     </div>
                 </form>
                 <div class="col-md-12">
-                    <button type="button" class="btn col-md-12 border-bottom" onclick="toggleOrderDropDown()">Order items</button>
-                    <ul id="orderDropDownCont" class="col-md-12 list-unstyled dislpay-none py-1">
-                        @await Component.InvokeAsync("CartItemList")
-                    </ul>
+                    <button type="button" class="btn col-md-12 border-bottom" onclick="toggleShow(@("orderDropDownCont"))">Order items</button>
+                    <div class="col-md-12 list-unstyled display-none py-1" id="orderDropDownCont">
+                        <div id="cartItemList">
+                            @await Component.InvokeAsync("CartItemList")
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group float-end">
                     <input type="submit" form="orderForm" value="Order" class="btn btn-outline-success float-right" />

@@ -11,26 +11,23 @@ namespace someOnlineStore.Controllers
     {
 
         private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
         private readonly IOrderService _orderService;
 
-        public AdminController(UserManager<User> userManager, SignInManager<User> signInManager, IOrderService orderService)
+        public AdminController(UserManager<User> userManager, IOrderService orderService)
         {
             _userManager = userManager;
-            _signInManager = signInManager;
             _orderService = orderService;
         }
 
         public IActionResult AllUsers()
         {
-            var users = _userManager.Users.ToList();
-            return View(users);
+            return View(_userManager.Users.ToList());
         }
 
         public async Task<IActionResult> Details(string Id)
         {
 
-            var user =await _userManager.FindByIdAsync(Id);
+            var user = await _userManager.FindByIdAsync(Id);
             if (user == null)
             {
                 return View("NotFound");
@@ -43,17 +40,17 @@ namespace someOnlineStore.Controllers
                 Adress = user.Adress,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
-                orders =await _orderService.GetAllOrders(Id)
+                orders = await _orderService.GetAllOrders(Id)
             };
 
             return View(data);
         }
-       
+
         public async Task<IActionResult> MakeAdmin(string Id)
         {
             var user = await _userManager.FindByIdAsync(Id);
             await _userManager.AddToRoleAsync(user, UserRoles.Admin);
-            return RedirectToAction("AllUsers");
+            return ViewComponent("UserList", _userManager.Users.ToList());
         }
 
 
@@ -61,7 +58,7 @@ namespace someOnlineStore.Controllers
         {
             var user = await _userManager.FindByIdAsync(Id);
             await _userManager.RemoveFromRoleAsync(user, UserRoles.Admin);
-            return RedirectToAction("AllUsers");
+            return ViewComponent("UserList", _userManager.Users.ToList());
         }
     }
 }

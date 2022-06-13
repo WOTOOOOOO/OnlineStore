@@ -21,13 +21,24 @@ body {
     border-radius: 5px;
 }
 
-/*Toggles*/
-.dislpay-none {
+/*Utils*/
+.coverScreen {
+    position: absolute;
+    z-index: 100;
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.display-none {
     display: none;
 }
 
+/*Toggles*/
 .show {
-    display: block;
+    display: flex;
 }
 
 /*Home related*/
@@ -41,7 +52,7 @@ body {
 }
 
 .editProductImage {
-    height : 300px;
+    height: 300px;
 }
 
 /*Profile related*/
@@ -54,22 +65,6 @@ body {
     z-index: 0;
     display: none;
     height: 300px;
-}
-
-#overlay {
-    display: flex;
-    z-index: 1;
-    top: 0px;
-    left: 0px;
-    position: absolute;
-    background-color: #BFBFBF;
-    visibility: hidden;
-    opacity: 0;
-    transition: opacity 1s;
-    height: 100%;
-    width: 100%;
-    justify-content: center;
-    align-items: center;
 }
 
 #passwordCheck {

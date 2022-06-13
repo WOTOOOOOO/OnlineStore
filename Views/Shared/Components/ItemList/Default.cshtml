@@ -20,7 +20,7 @@
                         {
                             <div class="d-inline-flex col-md-auto float-end row">
                                 <div class="col-md-auto">
-                                    <a class="btn btn-secondary" asp-action="Edit" asp-route-id="@item.Id">Edit <i class="bi bi-pencil-square"></i></a>
+                                    <a class="btn btn-secondary" asp-action="Edit" asp-controller="Home" asp-route-id="@item.Id">Edit <i class="bi bi-pencil-square"></i></a>
                                 </div>
                                 <div class="col-md-auto">
                                     <button class="btn btn-danger" onclick="deleteProduct(@item.Id);;disableButton(@($"del{item.Id}"));" id=@($"del{item.Id}")>Delete</button>
@@ -41,7 +41,7 @@
                         </div>
                         <div class="d-inline-flex col-md-auto float-end row">
                             <div class="col-md-auto">
-                                <a class="btn btn-primary" asp-action="Details" asp-route-id=@item.Id>Details</a>
+                                <a class="btn btn-primary" asp-action="Details" asp-controller="Home" asp-route-id=@item.Id>Details</a>
                             </div>
                             <div class="col-md-auto">
                                <button class="btn btn-success" onclick="addProduct(@item.Id);disableButton(@($"add{item.Id}"));" id=@($"add{item.Id}")>Add</button>
