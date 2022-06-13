@@ -100,6 +100,13 @@ function profileSecurity() {
     securityCard.style.display = "flex";
 }
 
+function ProfileEditsSubmit() {
+    var data = $("#profileEditsSubmit").serialize();
+    $.post("Edit?" + data, function (r) {
+        $("#profileGeneralEdit").html(r);
+    })
+}
+
 function passwordCheckPopup(trigger) {
     $.get("CheckPasswordPopup?trigger=" + trigger, function (r) {
         $("#passwordCheckOverlay").html(r);
@@ -177,3 +184,54 @@ function removeCartItem(Id) {
     });
 }
 
+
+// - collection Admin
+
+function makeAdmin(Id) {
+    $.get(URLBase + "/Admin/MakeAdmin?Id=" + Id, function (r) {
+        $("#allUsersList").html(r);
+    });
+}
+
+function removeAdmin(Id) {
+    $.get(URLBase + "/Admin/DeleteAdmin?Id=" + Id, function (r) {
+        $("#allUsersList").html(r);
+    });
+}
+
+// - collection Account
+
+function loginSubmit() {
+    var data = $("#loginForm").serialize();
+    $.post(URLBase + "/Account/LoginResult?" + data, function (r) {
+        if (r == false) {
+            $.get(URLBase + "/Account/LoginUnsuccessful?" + data, function (r) {
+                $("#loginFormComponent").html(r);
+            });
+        } else {
+            $.get(URLBase + "/Account/LoginSuccessful", function (r) {
+                window.location.href = URLBase + r;
+            });
+        }
+    });
+}
+
+function registerSubmit() {
+    var data = $("#registerForm").serialize();
+    var Email = $("#userEmail").val();
+    $.post(URLBase + "/Account/RegisterResult?" + data, function (r) {
+        if (r == false) {
+            $.get(URLBase + "/Account/RegisterUnsuccessful?" + data, function (r) {
+                $("#registerFormComponent").html(r);
+            });
+        } else {
+            $.get(URLBase + "/Account/RegisterSuccessful?Email=" + Email, function (r) {
+                window.location.href = URLBase + r;
+            });
+        }
+    });
+}
+
+function resendEmailVerification(Email) {
+    $.get(URLBase + "/Account/ResendMessage/" + Email, function (r) {});
+}
