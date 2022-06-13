@@ -1,0 +1,25 @@
+﻿@using someOnlineStore.Data.ViewModels
+@model ProfileGeneralEditsVM
+
+<form id="profileEditsSubmit">
+    <div class="form-group col-md-6 offset-3">
+        <label asp-for="Username" class="form-label"></label>
+        <input asp-for="Username" class="form-control" readonly />
+        <span asp-validation-for="Username" class="text-danger"></span>
+    </div>
+    <div class="form-group col-md-6 offset-3 mb-lg-4">
+        <label asp-for="Adress" class="form-label"></label>
+        <input asp-for="Adress" class="form-control" />
+        <span asp-validation-for="Adress" class="text-danger"></span>
+    </div>
+    <div class="form-group col-md-6 offset-3 mb-lg-4">
+        <label asp-for="PhoneNumber" class="form-label"></label>
+        <input asp-for="PhoneNumber" class="form-control" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+    <div class="form-group col-md-auto offset-9">
+        <button type="button" class="btn btn-success btn-outline-succes" onclick="ProfileEditsSubmit()">
+            Update
+        </button>
+    </div>
+</form>

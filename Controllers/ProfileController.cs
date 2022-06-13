@@ -29,8 +29,6 @@ namespace someOnlineStore.Controllers
         public async Task<IActionResult> Profile()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return View("NotFound");
-
             var userVM = new UserVM()
             {
                 Id = user.Id,
@@ -46,16 +44,15 @@ namespace someOnlineStore.Controllers
 
         //General edits rrelated
         [HttpPost]
-        public async Task<IActionResult> Edit(string Username, string Adress, string PhoneNumber)
+        public async Task<IActionResult> Edit([Bind("Username,Adress,PhoneNumber")] ProfileGeneralEditsVM editsVM)
         {
             var user = await _userManager.GetUserAsync(User);
-
-            if (user == null) return RedirectToAction("Index", "Home");
-            user.UserName = Username;
-            user.Adress = Adress;
-            user.PhoneNumber = PhoneNumber;
+            user.Adress = editsVM.Adress;
+            user.PhoneNumber = editsVM.PhoneNumber;
+            if (!ModelState.IsValid)
+                return ViewComponent("ProfileEdits", editsVM);
             await _userManager.UpdateAsync(user);
-            return RedirectToAction("Profile");
+            return ViewComponent("ProfileEdits", editsVM);
         }
 
 
@@ -97,7 +94,7 @@ namespace someOnlineStore.Controllers
                 await _mailService.SendEmailAsync(new Message(new List<string>() { user.Email },
                     "Password reset confirmation", Constants.generatePasswordResetMail(confirmationLink), null));
 
-                return "/Profile/VerificationEmailSent";
+                return $"/Profile/VerificationEmailSent/{user.Id}";
             }
 
             TempData["Error"] = "Unable to change password";
@@ -160,7 +157,7 @@ namespace someOnlineStore.Controllers
             await _mailService.SendEmailAsync(new Message(new List<string>() { newEmail }, "Email change confirmation",
                 Constants.generateEmailChangeConfirmationMail(confirmationLink), null));
 
-            return "/Profile/VerificationEmailSent";
+            return $"/Profile/VerificationEmailSent{user.Id}";
         }
 
         public async Task<IActionResult> ConfirmEmailChange(string Id, string token, string email)

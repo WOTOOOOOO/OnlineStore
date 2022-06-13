@@ -12,26 +12,8 @@
             <button type="button" class="btn btn-outline-secondary" onclick="profileSecurity()">Security</button>
         </div>
         <div class="card col-md-6 offset-3" id="profileGeneralEdit">
-            <form asp-action="Edit">
-                <div class="form-group col-md-6 offset-3">
-                    <label asp-for="Username" class="form-label"></label>
-                    <input asp-for="Username" class="form-control" readonly />
-                    <span asp-validation-for="Username" class="text-danger"></span>
-                </div>
-                <div class="form-group col-md-6 offset-3 mb-lg-4">
-                    <label asp-for="Adress" class="form-label"></label>
-                    <input asp-for="Adress" class="form-control" />
-                    <span asp-validation-for="Adress" class="text-danger"></span>
-                </div>
-                <div class="form-group col-md-6 offset-3 mb-lg-4">
-                    <label asp-for="PhoneNumber" class="form-label"></label>
-                    <input asp-for="PhoneNumber" class="form-control" />
-                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-                </div>
-                <div class="form-group col-md-auto offset-9">
-                    <input type="submit" value="Update" class="btn btn-success btn-outline-succes" />
-                </div>
-            </form>
+            @await Component.InvokeAsync("ProfileEdits", new ProfileGeneralEditsVM{ Username = Model.Username,
+            Adress = Model.Adress, PhoneNumber = Model.PhoneNumber })
         </div>
         <div class="card col-md-6 offset-3" id="profileSecuritylEdit">
             <div class="form-group col-md-6 offset-3">
