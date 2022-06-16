@@ -1,6 +1,11 @@
 ﻿@using someOnlineStore.Data.Static
 @model Products
 
+@section Scripts
+{
+    <script src="~/js/Home.js"></script>
+}
+
 <div class="col-md-10 offset-1">
     <div class="card">
         <div class="row">
@@ -12,12 +17,12 @@
                     <label asp-for="ProductName" class="form-label border-bottom"></label>
                     <p>@Model.ProductName</p>
                 </div>
-                 <hr />
+                <hr/>
                 <div class="col-md-12">
                     <label asp-for="price" class="form-label border-bottom"></label>
                     <p>@($"{Model.price}$")</p>
                 </div>
-                 <hr />
+                <hr/>
                 <div class="col-md-12">
                     <label asp-for="Categories" class="form-label border-bottom"></label>
                     <ul>

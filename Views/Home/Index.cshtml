@@ -6,6 +6,11 @@
     ViewData["Title"] = "Products";
 }
 
+@section Scripts
+{
+    <script src="~/js/Home.js"></script>
+}
+
 <div class="col-md-10 offset-1 row">
     <div class="col-md-12 mb-lg-2 row border-round" id="filter">
         @foreach (var category in SupportedCategories.Categories)

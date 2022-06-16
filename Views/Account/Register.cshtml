@@ -2,6 +2,11 @@
     ViewData["Title"] = "Sign up for a new account";
 }
 
+@section Scripts
+{
+    <script src="~/js/Account.js"></script>
+}
+
 <div class="row" id="registerFormComponent">
     @await Component.InvokeAsync("RegistrationForm");
 </div>

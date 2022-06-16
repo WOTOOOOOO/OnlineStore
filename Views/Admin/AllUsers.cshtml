@@ -1,5 +1,9 @@
 ﻿@model IEnumerable<User>
 
+@section Scripts
+{
+    <script src="~/js/Admin.js"></script>
+}
 <div id="allUsersList">
     @await Component.InvokeAsync("UserList", Model)
 </div>

@@ -1,5 +1,10 @@
 ﻿@model string;
 
+@section Scripts
+{
+    <script src="~/js/Profile.js"></script>
+}
+
 <div class="card col-md-4 offset-4" id="emailChangeWrap">
     @await Component.InvokeAsync("EmailChangeForm", new {Id = Model})
 </div>

@@ -2,6 +2,11 @@
     ViewData["Title"] = "Log in to your account";
 }
 
+@section Scripts
+{
+    <script src="~/js/Account.js"></script>
+}
+
 <div class="row" id="loginFormComponent">
     @await Component.InvokeAsync("LoginForm")
 </div>

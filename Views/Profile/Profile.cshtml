@@ -1,6 +1,11 @@
 ﻿@using someOnlineStore.Data.ViewModels
 @model UserVM
 
+@section Scripts
+{
+    <script src="~/js/Profile.js" ></script>
+}
+
 <div id="passwordCheckOverlay" class="coverScreen display-none align-items-center justify-content-center">
     @await Component.InvokeAsync("PasswordCheck")
 </div>
@@ -13,7 +18,7 @@
         </div>
         <div class="card col-md-6 offset-3" id="profileGeneralEdit">
             @await Component.InvokeAsync("ProfileEdits", new ProfileGeneralEditsVM{ Username = Model.Username,
-            Adress = Model.Adress, PhoneNumber = Model.PhoneNumber })
+                Adress = Model.Adress, PhoneNumber = Model.PhoneNumber })
         </div>
         <div class="card col-md-6 offset-3" id="profileSecuritylEdit">
             <div class="form-group col-md-6 offset-3">
@@ -30,27 +35,27 @@
     <div class="col-md-10 offset-1">
         <table class="table table-hover">
             <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Date</th>
-                    <th scope="col">Total</th>
-                    <th scope="col">Status</th>
-                </tr>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Date</th>
+                <th scope="col">Total</th>
+                <th scope="col">Status</th>
+            </tr>
             </thead>
             <tbody class="overflow-scroll">
-                @for (var i = 0; i < Model.orders.Count; i++)
-                {
+            @for (var i = 0; i < Model.orders.Count; i++)
+            {
 
-                    <tr>
-                        <th scope="row">
-                            <a asp-action="Details" asp-controller="Order" asp-route-Id=@Model.orders[i].Id>@i</a>
-                        </th>
-                        <td>some date</td>
-                        <td>@Model.orders[i].Total</td>
-                        <td>@Model.orders[i].orderStatus</td>
-                    </tr>
+                <tr>
+                    <th scope="row">
+                        <a asp-action="Details" asp-controller="Order" asp-route-Id=@Model.orders[i].Id>@i</a>
+                    </th>
+                    <td>some date</td>
+                    <td>@Model.orders[i].Total</td>
+                    <td>@Model.orders[i].orderStatus</td>
+                </tr>
 
-                }
+            }
             </tbody>
         </table>
     </div>
