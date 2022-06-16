@@ -1,9 +1,15 @@
-﻿@using someOnlineStore.Data.Enums
+﻿@using someOnlineStore.Data.ViewModels
 @using someOnlineStore.Data.Static
 @model Products;
 
 @{
     ViewData["Title"] = "Edit detailss";
+}
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
 }
 
 <div class="row">
@@ -24,8 +30,8 @@
                                 <input asp-for="image" class="visually-hidden" id="customFile" accept="image/*" type="file">
                                 <label for="customFile" class="btn btn-primary mb-1">Select file</label>
                             </div>
-                            <div id="preview editProductImage w-100">
-                                <img src=@Model.image style="width : 100%; height : 100%" />
+                            <div id="preview" class="editProductImage w-100">
+                                <img src="@Model.image" style="width : 100%; height : 100%"/>
                             </div>
                         </div>
                         <span asp-validation-for="image" class="text-danger"></span>
@@ -33,36 +39,36 @@
                     <div class="col-md-5 offset-1">
                         <div class="form-group">
                             <label asp-for="ProductName" class="form-label"></label>
-                            <input asp-for="ProductName" class="form-control" />
+                            <input asp-for="ProductName" class="form-control"/>
                             <span asp-validation-for="ProductName" class="text-danger"></span>
                         </div>
                         <div class="form-group">
                             <label asp-for="price" class="form-label"></label>
-                            <input asp-for="price" class="form-control" />
+                            <input asp-for="price" class="form-control"/>
                             <span asp-validation-for="price" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label asp-for="ProductDescription" class="form-label"></label>
-                    <input asp-for="ProductDescription" class="form-control" />
+                    <input asp-for="ProductDescription" class="form-control"/>
                     <span asp-validation-for="ProductDescription" class="text-danger"></span>
                 </div>
                 @foreach (var category in SupportedCategories.Categories)
                 {
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" checked="@Model.Categories.HasFlag(category)"
-                           onclick="updateCategory()" value=@((int)category)>
+                               onclick="updateCategory()" value=@((int) category)>
                         <label class="form-check-label" for="formRadioDefault">@category</label>
                     </div>
                 }
                 <div class="form-group visually-hidden">
-                    <input asp-for="Categories" class="form-control" id="category" />
+                    <input asp-for="Categories" class="form-control" id="category"/>
                     <span asp-validation-for="Categories" class="text-danger"></span>
                 </div>
 
                 <div class="form-group float-end">
-                    <input type="submit" value="Update" class="btn btn-outline-success float-right" />
+                    <input type="submit" value="Update" class="btn btn-outline-success float-right"/>
                     <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
                 </div>
             </form>

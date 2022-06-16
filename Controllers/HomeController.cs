@@ -14,7 +14,8 @@ namespace someOnlineStore.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ShoppingCart _cart;
 
-        public HomeController(IProductsService productsService, IWebHostEnvironment webHostEnvironment, ShoppingCart cart)
+        public HomeController(IProductsService productsService, IWebHostEnvironment webHostEnvironment,
+            ShoppingCart cart)
         {
             _productsService = productsService;
             _webHostEnvironment = webHostEnvironment;
@@ -36,13 +37,18 @@ namespace someOnlineStore.Controllers
 
                 if (searchString != null)
                 {
-                    filteredProducts = filteredProducts.Where(p => p.ProductName.ToLower().Contains(searchString.ToLower()) |
-                    p.ProductDescription.ToLower().Contains(searchString.ToLower()));
-                    return ViewComponent("ItemList", new { products = filteredProducts, categories = categories, searchString = searchString });
+                    filteredProducts = filteredProducts.Where(p =>
+                        p.ProductName.ToLower().Contains(searchString.ToLower()) |
+                        p.ProductDescription.ToLower().Contains(searchString.ToLower()));
+                    return ViewComponent("ItemList",
+                        new {products = filteredProducts, categories = categories, searchString = searchString});
                 }
-                return ViewComponent("ItemList", new { products = filteredProducts, categories = categories, searchString = "" });
+
+                return ViewComponent("ItemList",
+                    new {products = filteredProducts, categories = categories, searchString = ""});
             }
-            return ViewComponent("ItemList", new { products = products, categories = Category.None, searchString = "" });
+
+            return ViewComponent("ItemList", new {products = products, categories = Category.None, searchString = ""});
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -50,26 +56,29 @@ namespace someOnlineStore.Controllers
             var Product = await _productsService.GetByIdAsync(id);
             if (Product == null) return View("NotFound");
 
+            var imageStream = System.IO.File.OpenRead($"./wwwroot{Product.image}");
             return View(Product);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, [Bind("ProductName,ProductDescription,price,image,Categories")] NewProductVM product)
+        public async Task<IActionResult> Edit(int id,
+            [Bind("ProductName,ProductDescription,price,image,Categories")]
+            NewProductVM product)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                return View(product);
+                var newProduct = await _productsService.GetByIdAsync(id);
+                var path = Path.Combine(_webHostEnvironment.WebRootPath, newProduct.image.TrimStart('/'));
+                System.IO.File.Delete(path);
+                var uniqueFileName = UploadedFile(product);
+                newProduct.ProductName = product.ProductName;
+                newProduct.ProductDescription = product.ProductDescription;
+                newProduct.price = product.price;
+                newProduct.image = $"/images/{uniqueFileName}";
+                newProduct.Categories = product.Categories;
+                await _productsService.UpdateAsync(id, newProduct);
             }
-            var newProduct = await _productsService.GetByIdAsync(id);
-            var path = Path.Combine(_webHostEnvironment.WebRootPath, newProduct.image.TrimStart('/'));
-            System.IO.File.Delete(path);
-            var uniqueFileName = UploadedFile(product);
-            newProduct.ProductName = product.ProductName;
-            newProduct.ProductDescription = product.ProductDescription;
-            newProduct.price = product.price;
-            newProduct.image = $"/images/{uniqueFileName}";
-            newProduct.Categories = product.Categories;
-            await _productsService.UpdateAsync(id, newProduct);
+
             return RedirectToAction("Index");
         }
 
@@ -99,6 +108,7 @@ namespace someOnlineStore.Controllers
                 TempData["Error"] = "Product not found";
                 return await Filter(categories, searchString);
             }
+
             _cart.AddItem(product);
             return await Filter(categories, searchString);
         }
@@ -106,24 +116,25 @@ namespace someOnlineStore.Controllers
         public IActionResult Create() => View();
 
         [HttpPost]
-        public async Task<IActionResult> Create([Bind("ProductName,ProductDescription,price,image,Categories")] NewProductVM product)
+        public async Task<IActionResult> Create(
+            [Bind("ProductName,ProductDescription,price,image,Categories")]
+            NewProductVM product)
         {
             if (!ModelState.IsValid)
             {
-                return View(product);
+                string uniqueFileName = UploadedFile(product);
+
+                var newProduct = new Products()
+                {
+                    ProductName = product.ProductName,
+                    ProductDescription = product.ProductDescription,
+                    price = product.price,
+                    Categories = product.Categories,
+                    image = $"/images/{uniqueFileName}"
+                };
+                await _productsService.AddAsync(newProduct);
             }
 
-            string uniqueFileName = UploadedFile(product);
-
-            var newProduct = new Products()
-            {
-                ProductName = product.ProductName,
-                ProductDescription = product.ProductDescription,
-                price = product.price,
-                Categories = product.Categories,
-                image = $"/images/{uniqueFileName}"
-            };
-            await _productsService.AddAsync(newProduct);
             return RedirectToAction("Index", "Home");
         }
 
@@ -142,8 +153,10 @@ namespace someOnlineStore.Controllers
                     model.image.CopyTo(fileStream);
                 }
             }
+
             return uniqueFileName;
         }
+
         public async Task<IActionResult> Details(int Id)
         {
             var product = await _productsService.GetByIdAsync(Id);
@@ -151,9 +164,8 @@ namespace someOnlineStore.Controllers
             {
                 return View("NotFound");
             }
+
             return View(product);
         }
-
-
     }
 }
