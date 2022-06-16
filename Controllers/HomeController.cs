@@ -55,8 +55,7 @@ namespace someOnlineStore.Controllers
         {
             var Product = await _productsService.GetByIdAsync(id);
             if (Product == null) return View("NotFound");
-
-            var imageStream = System.IO.File.OpenRead($"./wwwroot{Product.image}");
+            
             return View(Product);
         }
 
@@ -69,6 +68,7 @@ namespace someOnlineStore.Controllers
             {
                 var newProduct = await _productsService.GetByIdAsync(id);
                 var path = Path.Combine(_webHostEnvironment.WebRootPath, newProduct.image.TrimStart('/'));
+                
                 System.IO.File.Delete(path);
                 var uniqueFileName = UploadedFile(product);
                 newProduct.ProductName = product.ProductName;
@@ -120,7 +120,7 @@ namespace someOnlineStore.Controllers
             [Bind("ProductName,ProductDescription,price,image,Categories")]
             NewProductVM product)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 string uniqueFileName = UploadedFile(product);
 
